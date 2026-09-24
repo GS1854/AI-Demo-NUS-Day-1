@@ -10,9 +10,10 @@ Snip is a tiny URL shortener built around a simple idea: one backend service plu
 
 This repo is organized as a superproject that pins three layer-specific branches as submodules:
 
-- `backend/` — Bun API on the `backend` branch
-- `frontend/` — Angular app on the `frontend` branch
-- `cli/` — Node CLI on the `cli` branch
+- `backend/` - Bun API on the `backend` branch
+- `frontend/` - Angular app on the `frontend` branch
+- `cli/` - Node CLI on the `cli` branch
+- `bundle/` - generated release output on the `bundle` branch
 
 ## API contract
 
@@ -31,7 +32,8 @@ This repo uses orphan branches to isolate each layer and then stitches them into
 - `backend` branch: API implementation and local in-memory data store
 - `frontend` branch: Angular 19 UI project named `snip-frontend`
 - `cli` branch: Node CLI for terminal usage
-- `main` branch: documentation and submodule pointers for the three branches
+- `bundle` branch: generated Bun server, built UI, CLI, Docker, and Railway files
+- `main` branch: documentation, build script, and submodule pointers for the layer branches
 
 The superproject keeps the project structure simple:
 
@@ -40,6 +42,8 @@ snip-demo/
 +- backend/
 +- frontend/
 +- cli/
++- bundle/
++- scripts/build-bundle.mjs
 +- README.md
 +- .gitmodules
 +- .git/
@@ -91,6 +95,15 @@ You can also override the API base URL for a different backend:
 ```bash
 SNIP_API=http://localhost:3000 node cli.js ls
 ```
+
+Build the generated release bundle:
+
+```bash
+node scripts/build-bundle.mjs
+node scripts/build-bundle.mjs --push
+```
+
+The bundle script updates the source submodules to their branch tips, builds the Angular app, writes generated release files into `bundle/`, commits changed generated output, and bumps the superproject submodule pointers. The `bundle` branch is generated output; do not hand-edit it.
 
 ## Update workflow
 
