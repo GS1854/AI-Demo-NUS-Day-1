@@ -1,0 +1,21 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, "Segoe UI", sans-serif;
+  background: #0b1020;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: #0b1020;
+}
+
+body {
+  min-height: 100vh;
+  color: #f8fafc;
+  line-height: 1.5;
+}

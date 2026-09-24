@@ -1,0 +1,61 @@
+<main class="page-shell">
+  <div class="glow" aria-hidden="true"></div>
+
+  <section class="hero">
+    <p class="eyebrow">Snip</p>
+    <h1>Make every link shorter.</h1>
+    <p class="subtitle">Paste a URL, save a tiny alias, and keep track of hits.</p>
+
+    <form class="shortener" (ngSubmit)="submit()">
+      <label class="sr-only" for="urlInput">URL</label>
+      <input
+        id="urlInput"
+        type="url"
+        [value]="url()"
+        (input)="url.set($any($event.target).value)"
+        placeholder="https://example.com"
+        aria-label="Paste URL to shorten"
+      />
+      <button type="submit" [disabled]="isSubmitting() || !url().trim()">
+        {{ isSubmitting() ? 'Shortening...' : 'Shorten' }}
+      </button>
+    </form>
+
+    <div class="notice error" *ngIf="error()">
+      {{ error() }}
+    </div>
+
+    <div class="notice success" *ngIf="successUrl()">
+      <span>Short link:</span>
+      <a [href]="successUrl()" target="_blank" rel="noreferrer">{{ successUrl() }}</a>
+    </div>
+  </section>
+
+  <section class="table-panel" aria-live="polite">
+    <div class="table-header">
+      <h2>Recent links</h2>
+      <span>{{ links().length }} total</span>
+    </div>
+
+    <table *ngIf="links().length; else emptyState">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Original URL</th>
+          <th>Hits</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let link of links()">
+          <td><a [href]="link.shortUrl" target="_blank" rel="noreferrer">{{ link.code }}</a></td>
+          <td class="url-cell"><a [href]="link.url" target="_blank" rel="noreferrer">{{ link.url }}</a></td>
+          <td>{{ link.hits }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #emptyState>
+      <div class="empty">No links yet. Add the first URL above.</div>
+    </ng-template>
+  </section>
+</main>
