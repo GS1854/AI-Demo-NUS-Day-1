@@ -1,8 +1,22 @@
 const http = require('node:http');
+const fs = require('node:fs');
+const path = require('node:path');
 const { URL } = require('node:url');
 
 const port = Number(process.env.PORT || 3000);
+const publicDir = process.env.PUBLIC_DIR ? path.resolve(process.cwd(), process.env.PUBLIC_DIR) : '';
 const links = new Map();
+
+const contentTypes = {
+  '.css': 'text/css; charset=utf-8',
+  '.html': 'text/html; charset=utf-8',
+  '.ico': 'image/x-icon',
+  '.js': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml; charset=utf-8',
+  '.txt': 'text/plain; charset=utf-8'
+};
 
 function createCode() {
   const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -39,6 +53,31 @@ function readRequestBody(req) {
 
     req.on('error', reject);
   });
+}
+
+function sendPublicFile(req, res, requestPath) {
+  if (!publicDir || req.method !== 'GET') {
+    return false;
+  }
+
+  const relativePath = requestPath === '/' ? 'index.html' : decodeURIComponent(requestPath.slice(1));
+  const filePath = path.resolve(publicDir, relativePath);
+
+  if (!filePath.startsWith(publicDir + path.sep) && filePath !== publicDir) {
+    sendJson(res, 404, { error: 'Not found.' });
+    return true;
+  }
+
+  if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+    return false;
+  }
+
+  const ext = path.extname(filePath).toLowerCase();
+  res.writeHead(200, {
+    'Content-Type': contentTypes[ext] || 'application/octet-stream'
+  });
+  fs.createReadStream(filePath).pipe(res);
+  return true;
 }
 
 const server = http.createServer(async (req, res) => {
@@ -88,6 +127,10 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && requestUrl.pathname === '/api/links') {
     sendJson(res, 200, Array.from(links.values()));
+    return;
+  }
+
+  if ((requestUrl.pathname === '/' || path.extname(requestUrl.pathname)) && sendPublicFile(req, res, requestUrl.pathname)) {
     return;
   }
 
