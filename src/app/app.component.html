@@ -6,7 +6,7 @@
     <h1>Make every link shorter.</h1>
     <p class="subtitle">Paste a URL, save a tiny alias, and keep track of hits.</p>
 
-    <form class="shortener" (ngSubmit)="submit()">
+    <form class="shortener" (submit)="submit(); $event.preventDefault()">
       <label class="sr-only" for="urlInput">URL</label>
       <input
         id="urlInput"
